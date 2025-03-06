@@ -19,4 +19,6 @@ public class IncidentDTO {
 
     private LocalDateTime closedAt;
 
+    private LocalDateTime lastUpdatedAt;
+
 }

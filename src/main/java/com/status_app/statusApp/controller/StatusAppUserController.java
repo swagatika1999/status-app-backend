@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:5173","https://service-status-tracker.netlify.app"})
+@CrossOrigin(origins = "${cors.allowed.origins}")
 public class StatusAppUserController {
 
     @Autowired
@@ -79,6 +79,8 @@ public class StatusAppUserController {
     public ResponseEntity<List<IncidentUpdateDTO>> getIncidentUpdatesList(@PathVariable String incidentId){
         List<IncidentUpdateDTO> incidentUpdateLists=statusAppService.getIncidentUpdates(incidentId);
         if(!CollectionUtils.isEmpty(incidentUpdateLists)) {
+            // sort in descending order of updatedAt
+            incidentUpdateLists.sort((update1, update2) -> update2.getUpdatedAt().compareTo(update1.getUpdatedAt()));
             return ResponseEntity.status(HttpStatus.OK).body(incidentUpdateLists);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);

@@ -21,4 +21,6 @@ public class IncidentEntity {
     private LocalDateTime createdAt;
 
     private LocalDateTime closedAt;
+
+    private LocalDateTime lastUpdatedAt;
 }

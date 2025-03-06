@@ -17,9 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StatusAppServiceImpl implements StatusAppService {
@@ -72,6 +72,9 @@ public class StatusAppServiceImpl implements StatusAppService {
     @Override
     public boolean createIncident(IncidentDTO incident) {
         try {
+            if (incident.getCreatedAt() == null) {
+                incident.setCreatedAt(LocalDateTime.now());
+            }
             IncidentEntity incidentEntity = dtoMapperHelper.toIncidentEntity(incident);
             incidentRepository.save(incidentEntity);
             return true;
@@ -84,6 +87,16 @@ public class StatusAppServiceImpl implements StatusAppService {
     @Override
     public boolean createIncidentUpdate(IncidentUpdateDTO incidentUpdateDTO) {
         try {
+            if (incidentUpdateDTO.getUpdatedAt() == null) {
+                LocalDateTime currentDate = LocalDateTime.now();
+                incidentUpdateDTO.setUpdatedAt(currentDate);
+                Optional<IncidentEntity> optIncidentEntity = incidentRepository.findById(incidentUpdateDTO.getIncidentId());
+                if (optIncidentEntity.isPresent()) {
+                    IncidentEntity incidentEntity = optIncidentEntity.get();
+                    incidentEntity.setLastUpdatedAt(currentDate);
+                    incidentRepository.save(incidentEntity);
+                }
+            }
             IncidentUpdateEntity incidentUpdateEntity = dtoMapperHelper.toIncidentUpdateEntity(incidentUpdateDTO);
             incidentUpdateRepository.save(incidentUpdateEntity);
             return true;
@@ -100,7 +113,7 @@ public class StatusAppServiceImpl implements StatusAppService {
            if(!CollectionUtils.isEmpty(incidentUpdateLists)){
                return dtoMapperHelper.toIncidentUpdateDTOLists(incidentUpdateLists);
            }else{
-               logger.error("No records found.. GTH");
+               logger.error("No records found.. Oh my Kadavule!");
            }
        }catch(Exception e){
             logger.error("Exception occured while getting the incidentUpdate list - {}",e);
